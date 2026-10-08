@@ -1,0 +1,19 @@
+Package: typesafer
+Type: Package
+Title: What the Package Does (Title Case)
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Fernando",
+           family = "Reis",
+           role = c("aut", "cre"),
+           email = "fernando@lopesreis.eu",
+           comment = c(ORCID = "0009-0001-8479-4412"))
+Description: More about what it does (maybe more than one line).
+    Continuation lines should be indented.
+License: GPL-3
+Encoding: UTF-8
+Language: en-GB
+LazyData: true
+Roxygen: list(markdown = TRUE)
+Config/testthat/edition: 3
+Config/roxygen2/version: 8.1.0

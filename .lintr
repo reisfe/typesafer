@@ -1,0 +1,30 @@
+linters: local({
+    # Requires lintr >= 3.2.0.
+    package_loading_check <- lintr::undesirable_function_linter(
+        fun = c(
+            library = "Use namespace-qualified calls or explicit imports in package implementation.",
+            require = "Use namespace-qualified calls or explicit imports in package implementation."),
+        symbol_is_undesirable = FALSE)
+    # Scope this check to .R/.r implementation files beneath an R directory.
+    # Package loading remains permitted in tests, vignettes and other scripts.
+    package_loading_linter <- lintr::Linter(function(source_expression) {
+        filename <- gsub("\\", "/", source_expression$filename, fixed = TRUE)
+        if (length(filename) != 1L || is.na(filename)) return(list())
+        if (!grepl("(^|/)R/[^/]+\\.[Rr]$", filename)) return(list())
+        return(package_loading_check(source_expression))
+    })
+    return(list(
+        object_name_linter = lintr::object_name_linter(styles = "snake_case"),
+        assignment_linter = lintr::assignment_linter(operator = "<-"),
+        # Four-space block indents; align continuation arguments when the
+        # first argument shares the call's opening line.
+        indentation_linter = lintr::indentation_linter(indent = 4L),
+        whitespace_linter = lintr::whitespace_linter(),
+        trailing_whitespace_linter = lintr::trailing_whitespace_linter(),
+        # Requires a terminal newline and rejects extra trailing blank lines.
+        trailing_blank_lines_linter = lintr::trailing_blank_lines_linter(),
+        return_linter = lintr::return_linter(
+            return_style = "explicit", allow_implicit_else = FALSE),
+        package_loading_linter = package_loading_linter))
+  })
+encoding: "UTF-8"
