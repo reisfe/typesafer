@@ -1,0 +1,4 @@
+web_search = "live"
+
+[tools.web_search]
+allowed_domains = ["typesafe.ai"]

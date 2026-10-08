@@ -50,6 +50,12 @@ At the end, provide a concise report containing:
 - unresolved issues
 
 
+## Consulting TypeSafe documentation
+
+Consult TypeSafe's documentation in:
+- general: https://docs.typesafe.ai/
+- API Reference: https://api.typesafe.ai/docs
+
 
 ## Security Boundaries
 
