@@ -2,7 +2,8 @@
 
 This document records the initial implementation contract agreed on
 8 October 2026. It separates published schemas, observed service behaviour and
-planned R mappings. No package functions are implemented at this stage.
+planned R mappings. Client configuration, transport and model discovery are
+implemented; evaluation and question constructors remain planned.
 
 ## Sources and verification
 
@@ -149,8 +150,13 @@ ambiguous connection failures or timeouts. Do not retry authentication or
 validation failures. Configure retryable statuses explicitly in the transport
 rather than relying on the HTTP library's defaults.
 
-Timeout values, attempt limits and the retry time budget will be documented
-and tested in the transport implementation. Do not hard-code changing model
+Transport defaults are a 10-second timeout per attempt, two retries after the
+initial attempt and a 30-second total budget. Timeout and budget values must be
+at least 0.001 seconds. Each attempt uses the smaller of the configured timeout
+and remaining budget. A delay that consumes the remaining budget stops retries
+and returns the last HTTP error. `Retry-After` accepts seconds or IMF-fixdate;
+`retry-after-ms` is a fallback. Invalid headers fall back to jittered exponential
+backoff capped at 60 seconds. Redirects are not followed. Do not hard-code changing model
 rate limits or context budgets as universal client constraints.
 
 ## Verification strategy

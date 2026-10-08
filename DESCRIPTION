@@ -15,6 +15,13 @@ Description: An R interface to the TypeSafe AI API for model discovery and
 License: GPL-3
 Encoding: UTF-8
 Language: en-GB
+Depends:
+    R (>= 4.1.0)
+Imports:
+    httr2 (>= 1.2.3)
+Suggests:
+    testthat (>= 3.2.0),
+    withr (>= 2.5.0)
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3
 Config/roxygen2/version: 8.1.0
