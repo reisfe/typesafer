@@ -1,146 +1,140 @@
-<!-- Template: replace {{PLACEHOLDERS}}, complete the examples, and remove
-     optional sections and paths that do not apply. Describe actual behaviour.
-     Keep reusable development rules in AGENTS.md; document package-specific
-     context and decisions here. -->
+# typesafer
 
-# {{PACKAGE_NAME}}
+`typesafer` is an R package in development for accessing the TypeSafe AI API.
+The first release will provide a thin, synchronous client that maps the HTTP
+API to R functions and preserves its request and response structures.
 
-{{One sentence explaining what the package does and for whom.}}
+## Status and scope
 
-{{Briefly describe the problem, main capabilities, and scope. State important
-limitations, such as supported data sources, platforms, or intended use.}}
+The repository currently contains package metadata and design documentation.
+There is no usable API client yet. Functions, tests, installation instructions
+and runnable examples will be added during implementation.
 
-## Installation
+The initial scope covers:
 
-Requires R {{MINIMUM_R_VERSION}} or later. See [DESCRIPTION](DESCRIPTION) for
-package dependencies.
+- model discovery through `GET /v1/models`;
+- evaluation through `POST /v1/systemone`;
+- Noul, Choice and Score questions, including mixed questions in one request;
+- authentication, validation, JSON serialization, timeouts, bounded retries
+  and understandable errors;
+- nested list responses preserving answers, model information and token usage.
 
-{{List required system tools and libraries, with installation instructions.
-Distinguish runtime requirements from development-only tools such as Pandoc
-or qpdf, where relevant.}}
+Data-frame workflows, vectorised evaluation, asynchronous execution, caching,
+classification helpers and statistical summaries are deferred to a later
+higher-level interface.
 
-Install from a local clone:
+See the [API contract](docs/api-contract.md) for input and output structures,
+JSON mappings and discrepancies verified against the live API.
 
-```sh
-git clone {{REPOSITORY_CLONE_URL}}
-cd {{REPOSITORY_DIRECTORY}}
-Rscript -e 'install.packages(c("pak", "devtools"))'
-Rscript -e 'pak::local_install_deps()'
-Rscript -e 'devtools::install(dependencies = FALSE)'
-```
+## Planned R interface
 
-{{Add a CRAN or release installation route if available. For private
-repositories, explain the established authentication method.}}
+These functions are agreed design targets and are not implemented yet.
 
-## Quick start
+| Function | Responsibility |
+| --- | --- |
+| `create_typesafe_client()` | Create a lightweight S3 client holding configuration |
+| `list_models(client)` | Retrieve available models and aliases |
+| `evaluate_questions(client, state, questions, model)` | Evaluate named questions against one state |
+| `create_noul_question(instructions = NULL, criteria = NULL)` | Construct a Noul question |
+| `create_choice_question(criteria, instructions = NULL)` | Construct a Choice question |
+| `create_score_question(criteria, instructions = NULL)` | Construct a Score question |
 
-{{Replace the illustrative code below with a minimal, runnable example using
-bundled or synthetic data. Include the expected result.}}
+Question constructors will return ordinary lists. Evaluation will also accept
+manually assembled question lists with the same structure. Endpoint functions
+will return nested lists with API field names unchanged.
+
+## Planned configuration and authentication
+
+Configuration precedence will be explicit arguments, then supported environment
+variables, then package defaults. Explicitly supplied invalid values will
+produce errors rather than falling back silently.
+
+| Setting | Environment variable | Default |
+| --- | --- | --- |
+| API key | `TYPESAFE_API_KEY` | None; required |
+| API base URL | `TYPESAFE_BASE_URL` | `https://api.typesafe.ai` |
+| Default model | `TYPESAFE_DEFAULT_MODEL` | `jev-latest` |
+
+R reads these variables from `.Renviron` at session startup when configured
+there. The client will read the session environment; it will not read or modify
+`.Renviron` itself. Keys must never be committed, printed in client summaries
+or included in diagnostic messages.
+
+Client construction will make no network request. Endpoint calls will send
+bearer-authenticated HTTPS requests; evaluation sends supplied content and
+questions to TypeSafe. Timeout and retry limits will be explicit client
+settings, with defaults documented when transport is implemented.
+
+Users may supply any model name, including a pinned version, without a model
+discovery call. The actual model reported by the API will remain in the result.
+
+## Planned architecture
+
+Public endpoint functions will share internal helpers for validation,
+serialization, HTTP requests and errors. The client will be a small S3 list.
+The following source files are planned; they do not exist yet.
+
+| File | Responsibility |
+| --- | --- |
+| `R/client.R` | Client construction, configuration and safe printing |
+| `R/questions.R` | Question constructors |
+| `R/system_one.R` | Evaluation endpoint |
+| `R/models.R` | Model discovery endpoint |
+| `R/request.R` | Authentication, HTTP execution, timeouts and retries |
+| `R/validation.R` | Input checks and JSON shape handling |
+| `R/errors.R` | Package conditions and diagnostic extraction |
+
+`httr2` is the planned HTTP dependency. Dependencies will be declared in
+DESCRIPTION when introduced; additional dependencies require a concrete need.
+Minimum R and dependency versions will be set alongside the implementation
+that requires them.
+
+The client will preserve server-provided values and unknown response fields.
+It will not recompute confidence, round scores, renumber rubric levels or
+automatically convert responses into data frames.
+
+## Development plan
+
+1. Record the contract and package scope: complete metadata and document the
+   interface, configuration, JSON mappings and observed API constraints.
+2. Implement the client and transport: authentication, timeouts, errors and
+   model discovery, with offline request tests.
+3. Implement evaluation and constructors: all three primitives, mixed
+   questions, structured inputs and faithful response decoding.
+4. Complete regression tests: validation boundaries, JSON shapes, responses,
+   errors, retry exhaustion and credential redaction.
+5. Document and validate: generate function help and exports with roxygen2,
+   add a runnable quick start and CI, and run package checks.
+
+The first release requires both endpoints and all three primitives to work,
+offline tests to pass, documentation to be generated and `R CMD check` to pass.
+Authenticated integration results will be reported separately.
+
+## Testing and contributing
+
+Follow [AGENTS.md](AGENTS.md) and the existing `.lintr` configuration. There are
+currently no tests or CI configuration. Planned tests use `testthat` edition 3
+and saved fixtures or mocks, without Internet access or personal credentials.
+Live tests will require both `RUN_NETWORK_TESTS=true` and an API key; ordinary
+test runs will skip them. Retry tests will mock delays and responses.
+
+Once implementation and development dependencies exist, run from the repository
+root:
 
 ```r
-input <- {{SMALL_EXAMPLE_INPUT}}
-result <- {{PACKAGE_NAME}}::{{MAIN_FUNCTION}}(input)
-result
+devtools::document()
+devtools::test()
+devtools::check()
 ```
 
-See function help with `help("{{MAIN_FUNCTION}}", package = "{{PACKAGE_NAME}}")`.
-{{Link to vignettes or longer worked examples, if available.}}
+Edit roxygen comments in source files and regenerate documentation and exports.
+Keep changes focused and preserve existing work.
 
-## Inputs, outputs, and configuration
+## References and license
 
-{{Describe accepted inputs, output structures, required fields, units, missing
-value handling, and relevant side effects. For file/database operations, explain
-what is created, changed, or overwritten and whether reruns are idempotent.}}
+- [TypeSafe general documentation](https://docs.typesafe.ai/)
+- [HTTP API reference](https://docs.typesafe.ai/api)
+- [Swagger API reference](https://api.typesafe.ai/docs)
+- [OpenAPI schema](https://api.typesafe.ai/openapi.json)
 
-{{If applicable, document configuration locations, defaults and precedence,
-environment variable names, and authentication setup. Use example values and
-keep credentials out of the repository. Remove this section if unnecessary.}}
-
-## Architecture and design decisions
-
-{{Explain the main components and data flow, from the public API through
-internal processing to outputs or external systems. Identify the relevant
-source files. Describe boundaries such as domain logic versus UI, runtime
-versus build-time processing, or data access versus transformation.}}
-
-| Component | Responsibility | Main files |
-| --- | --- | --- |
-| {{COMPONENT}} | {{RESPONSIBILITY}} | {{PATHS}} |
-
-{{Record consequential decisions and their rationale: dependency choices,
-performance trade-offs, caching, schema assumptions, or compatibility
-constraints. Link longer explanations rather than duplicating them.}}
-
-### Repository structure
-
-<!-- Keep only paths present in this repository; add project-specific ones. -->
-
-| Path | Purpose |
-| --- | --- |
-| `R/` | Package functions, grouped by domain or feature |
-| `tests/testthat/` | Unit tests and fixtures |
-| `man/`, `NAMESPACE` | Documentation and exports generated by roxygen2 |
-| `vignettes/` | Worked examples and longer explanations |
-| `inst/` | Resources distributed with the installed package |
-| `tools/` | Repository maintenance and build utilities |
-| `DESCRIPTION` | Package metadata and dependency declarations |
-| `.lintr` | Project linting configuration |
-| `.gitlab-ci.yml` | GitLab CI configuration |
-| `AGENTS.md` | Reusable development guidelines |
-
-## Development
-
-Run commands from the repository root:
-
-```sh
-Rscript -e 'install.packages(c("pak", "devtools", "lintr"))'
-Rscript -e 'pak::local_install_dev_deps()'
-Rscript -e 'devtools::load_all()'
-Rscript -e 'devtools::document()'
-Rscript -e 'devtools::test()'
-Rscript -e 'lintr::lint_package()'
-Rscript -e 'devtools::check()'
-Rscript -e 'devtools::build()'
-```
-
-`load_all()` is also useful in an interactive development session. Edit roxygen2
-comments in source files and regenerate `man/` and `NAMESPACE`.
-
-Follow [AGENTS.md](AGENTS.md); `.lintr` defines the automated checks. Functions
-use explicit `return()`. {{Add project-specific conventions or exceptions.}}
-
-<!-- Keep this paragraph only if the script exists. -->
-Maintain build exclusions through `tools/update-build-ignore.R`, using
-`usethis::use_build_ignore()` and comments explaining each exclusion:
-
-```sh
-Rscript tools/update-build-ignore.R
-```
-
-### Testing and CI
-
-Ordinary unit tests use temporary resources and saved fixtures; they run offline
-without personal credentials. {{Document how to opt into integration tests and
-their prerequisites, if any.}}
-
-<!-- Adapt to the actual pipeline rather than asserting an unimplemented policy. -->
-GitLab CI runs on pushes to `develop` and supports manual runs on that branch.
-The main `r-check` job installs dependencies, builds the package, and runs
-`R CMD check`, including package tests. {{Describe failure criteria, retained
-artifacts, and any justified additional jobs.}}
-
-{{If coverage is configured, link GitLab coverage reports and add a GitLab
-coverage badge. Remove this paragraph otherwise.}}
-
-## Contributing and support
-
-Report bugs and feature requests through {{ISSUE_TRACKER_URL}}. Include a
-reproducible example, expected and observed behaviour, and session information.
-
-Submit focused merge requests through {{MERGE_REQUESTS_URL}}, with relevant
-tests and documentation updates. {{Describe branch and review conventions.}}
-
-## License
-
-{{LICENSE_NAME_AND_VERSION}}. See {{LICENSE_FILE_OR_URL}}.
-<!-- Use EUPL with the correct version only when it is the package's license. -->
+Licensed under GPL-3, as declared in [DESCRIPTION](DESCRIPTION).

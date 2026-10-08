@@ -1,6 +1,6 @@
 Package: typesafer
 Type: Package
-Title: What the Package Does (Title Case)
+Title: R Client for the TypeSafe AI API
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Fernando",
@@ -8,12 +8,13 @@ Authors@R:
            role = c("aut", "cre"),
            email = "fernando@lopesreis.eu",
            comment = c(ORCID = "0009-0001-8479-4412"))
-Description: More about what it does (maybe more than one line).
-    Continuation lines should be indented.
+Description: An R interface to the TypeSafe AI API for model discovery and
+    evaluation of named Noul, Choice and Score questions against supplied
+    content. The client is designed to preserve the API request and response
+    structures, including probabilities, confidence values and token usage.
 License: GPL-3
 Encoding: UTF-8
 Language: en-GB
-LazyData: true
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3
 Config/roxygen2/version: 8.1.0
