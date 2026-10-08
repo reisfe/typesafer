@@ -18,7 +18,8 @@ Language: en-GB
 Depends:
     R (>= 4.1.0)
 Imports:
-    httr2 (>= 1.2.3)
+    httr2 (>= 1.2.3),
+    jsonlite (>= 1.8.0)
 Suggests:
     testthat (>= 3.2.0),
     withr (>= 2.5.0)

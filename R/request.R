@@ -9,7 +9,8 @@ build_typesafe_request <- function(client, method, path, body = NULL) {
     request <- httr2::req_options(request, followlocation = FALSE)
     request <- httr2::req_error(request, is_error = function(response) FALSE)
     if (!is.null(body))
-        request <- httr2::req_body_json(request, body, auto_unbox = TRUE, null = "null")
+        request <- httr2::req_body_raw(request, serialize_json_body(body),
+                                       type = "application/json")
     return(request)
 }
 

@@ -1,0 +1,27 @@
+{
+  "model": "jev-1.13.0",
+  "answers": {
+    "severity": {
+      "type": "score",
+      "score": 1.7,
+      "confidence": 0.4,
+      "legend": {
+        "0": "Calm",
+        "1": {"level": "Frustrated"},
+        "2": ["Angry", "Severe"]
+      },
+      "probabilities": {"0": 0.1, "1": 0.1, "2": 0.8},
+      "future": null
+    },
+    "department": {
+      "type": "choice",
+      "choice": "billing",
+      "confidence": 0.37,
+      "probabilities": {"technical": 0.2, "billing": 0.799999999},
+      "future": {"enabled": true}
+    },
+    "is_urgent": {"type": "noul", "noul": 0.95}
+  },
+  "usage": {"input_tokens": 210, "output_tokens": 25, "future": null},
+  "future": {"values": ["one"], "empty": {}}
+}

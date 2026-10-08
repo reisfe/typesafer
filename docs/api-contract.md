@@ -2,8 +2,8 @@
 
 This document records the initial implementation contract agreed on
 8 October 2026. It separates published schemas, observed service behaviour and
-planned R mappings. Client configuration, transport and model discovery are
-implemented; evaluation and question constructors remain planned.
+R mappings. Both API endpoints, client configuration, transport and all three
+question constructors are implemented.
 
 ## Sources and verification
 
@@ -82,31 +82,42 @@ documented upper bounds and the non-empty Choice constraint.
 | Noul instructions omitted / null, without criteria | HTTP 400 for both: requires criteria or instructions |
 | Noul with criteria only | HTTP 200 |
 | Noul with instructions only | HTTP 200 |
+| Noul empty string / array / object instructions, without criteria | HTTP 400 for each |
+| Noul empty criteria object or null-only recognised criteria | HTTP 400 |
+| Noul unknown criterion only | HTTP 400 |
+| Noul empty string / array / object `true` description | HTTP 200 for each |
+| Noul with only a non-null `false` criterion | HTTP 200 |
+| Noul empty instructions with a valid `true` criterion | HTTP 200 |
 | Score with zero levels | HTTP 422: at least one item required |
 | Score with 1, 2 or 10 levels | HTTP 200 |
 | Score with 11 levels | HTTP 400: at most 10 levels |
+| Score with a null level | HTTP 422 |
 | Choice with zero options | HTTP 400: at least one choice required |
 | Choice with 1 or 255 options | HTTP 200 |
 | Choice with 256 options | HTTP 400: at most 255 choices |
 
-Initial local validation will permit optional instructions, require Noul
-instructions or criteria, accept 1–10 Score levels and accept 1–255 Choice
-options. At least two Score levels remain the documentation's recommendation,
+Local validation permits optional instructions, accepts 1–10 Score levels
+and accepts 1–255 Choice options. Noul requires non-empty instructions or a
+non-null recognised `true`/`false` criterion. Empty criterion descriptions
+(strings, arrays or objects) count as supplied; nulls and unknown fields do not. At least two Score levels remain the documentation's recommendation,
 not an enforced service minimum. A one-option Choice is also accepted even
 though it is of limited practical use.
 
-The probes do not establish every edge case, including empty instruction
-strings and empty Noul criteria. Implementation should test these separately
-before claiming exact parity. Avoid inventing restrictions on nested content.
+The additional empty-value and null-level probes above were performed during
+step 3 on 8 October 2026. Score null levels are rejected by the service and
+OpenAPI even though the general structured-input page includes null among Score
+entry shapes. The client follows the verified service behaviour. Unknown
+question fields are preserved when they contain supported JSON values.
 
-## Planned R and JSON mappings
+## R and JSON mappings
 
 | R representation | JSON representation |
 | --- | --- |
 | Scalar character value | String |
 | Named list with unique, non-empty names | Object |
 | Unnamed list | Array, including a one-element array |
-| Atomic vector with multiple elements | Array of scalar values |
+| Atomic vector with multiple elements | Array of scalar values; vector names ignored |
+| Character vector used as Score criteria | Array of descriptions, even for one element |
 | `list()` | Empty array |
 | `structure(list(), names = character())` | Empty object |
 | `NULL` retained as a named list element | Explicit null |
@@ -115,19 +126,25 @@ before claiming exact parity. Avoid inventing restrictions on nested content.
 Scalar numeric and logical values are permitted inside structured JSON.
 Top-level state and description values must follow their documented shapes.
 Use a one-element unnamed list when a JSON array is required for one value.
-The distinction between explicit null and an omitted property must survive
-serialization. Optional constructor arguments defaulting to `NULL` will omit
-their field; manually assembled lists can express explicit nulls.
+The distinction between explicit null and an omitted property survives
+serialization. Optional constructor arguments defaulting to `NULL` omit their
+field; manually assembled lists can express explicit nulls. Serialization uses
+`jsonlite` directly, with explicit nulls and sufficient numeric precision,
+before passing the JSON body to the shared HTTP transport.
 
 Reject `NA`, `NaN`, infinite numbers, duplicate or partial list names, and
 unsupported R objects rather than silently coercing them. Data frames, factors,
 dates and other classed objects require explicit conversion to supported
 values in this initial interface. No automatic row-wise evaluation is planned.
 
-Responses will be decoded into nested lists without simplifying arrays into
+Responses are decoded into nested lists without simplifying arrays into
 data frames. Preserve API names, zero-based legend keys, nulls and unknown
 fields. Model release dates remain strings. Validate essential response
 structure and report malformed responses without rejecting harmless additions.
+Evaluation checks matching answer names and types, probability maps, zero-based
+rubric keys, score/confidence/probability ranges and non-negative integer token
+counts. It does not require an exact probability sum, recompute scores or
+confidence, or reorder answers. Model overrides apply to one request only.
 
 ## Errors and retries
 
@@ -137,7 +154,7 @@ demonstrated HTTP 400 for application-level validation. Handle other non-success
 statuses through a general HTTP error condition rather than assuming this list
 is exhaustive.
 
-Package conditions will distinguish HTTP failures, connection failures,
+Package conditions distinguish HTTP failures, connection failures,
 timeouts and malformed responses. HTTP conditions should retain status,
 server messages and validation locations. Do not automatically print request
 content, credentials or echoed invalid inputs. Preserve underlying causes for
@@ -156,8 +173,8 @@ at least 0.001 seconds. Each attempt uses the smaller of the configured timeout
 and remaining budget. A delay that consumes the remaining budget stops retries
 and returns the last HTTP error. `Retry-After` accepts seconds or IMF-fixdate;
 `retry-after-ms` is a fallback. Invalid headers fall back to jittered exponential
-backoff capped at 60 seconds. Redirects are not followed. Do not hard-code changing model
-rate limits or context budgets as universal client constraints.
+backoff capped at 60 seconds. Redirects are not followed. Do not hard-code
+changing model rate limits or context budgets as universal client constraints.
 
 ## Verification strategy
 

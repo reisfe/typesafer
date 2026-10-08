@@ -1,14 +1,15 @@
 # typesafer
 
 `typesafer` is an R package in development for accessing the TypeSafe AI API.
-The first release will provide a thin, synchronous client that maps the HTTP
-API to R functions and preserves its request and response structures.
+The package provides a thin, synchronous client that maps the HTTP API to R
+functions and preserves its request and response structures.
 
 ## Status and scope
 
-Client configuration, shared transport and model discovery are implemented.
-Evaluation and question constructors remain planned for step 3. Offline tests
-cover the implemented functions; CI is not configured yet.
+Both API endpoints and all three question constructors are implemented, along
+with client configuration and shared transport. Offline tests cover input
+validation, request serialization, response preservation and transport errors.
+CI is not configured yet; broader regression review remains for step 4.
 
 The initial scope covers:
 
@@ -28,8 +29,7 @@ JSON mappings and discrepancies verified against the live API.
 
 ## R interface
 
-`create_typesafe_client()` and `list_models()` are implemented. Evaluation and
-question constructors below are agreed design targets for step 3.
+The following functions are implemented:
 
 | Function | Responsibility |
 | --- | --- |
@@ -40,9 +40,9 @@ question constructors below are agreed design targets for step 3.
 | `create_choice_question(criteria, instructions = NULL)` | Construct a Choice question |
 | `create_score_question(criteria, instructions = NULL)` | Construct a Score question |
 
-Question constructors will return ordinary lists. Evaluation will also accept
-manually assembled question lists with the same structure. Endpoint functions
-will return nested lists with API field names unchanged.
+Question constructors return ordinary lists. Evaluation also accepts manually
+assembled question lists with the same structure. Endpoint functions return
+nested lists with API field names unchanged.
 
 ## Configuration and authentication
 
@@ -63,7 +63,7 @@ or included in diagnostic messages.
 
 Client construction makes no network request. Endpoint calls send
 bearer-authenticated HTTPS requests; evaluation sends supplied content and
-questions to TypeSafe once evaluation is implemented. Client settings default
+questions to TypeSafe. Client settings default
 to a 10-second timeout per attempt, two retries after the initial attempt, and
 a 30-second total request budget (`timeout`, `max_retries`, `retry_timeout`).
 Timeouts and budgets must be at least 0.001 seconds. Each attempt is limited by
@@ -79,8 +79,7 @@ discovery call. The actual model reported by the API will remain in the result.
 ## Architecture
 
 Endpoint functions share internal helpers for validation, HTTP requests and
-errors. The client is a small S3 list. `R/questions.R` and `R/system_one.R` remain
-planned for step 3; the other files below are implemented.
+errors. The client is a small S3 list. All files below are implemented.
 
 | File | Responsibility |
 | --- | --- |
@@ -89,16 +88,19 @@ planned for step 3; the other files below are implemented.
 | `R/system_one.R` | Evaluation endpoint |
 | `R/models.R` | Model discovery endpoint |
 | `R/request.R` | Authentication, HTTP execution, timeouts and retries |
-| `R/validation.R` | Input checks and JSON shape handling |
+| `R/validation.R` | Client configuration checks |
+| `R/json.R` | JSON validation, shape mapping and serialization |
 | `R/errors.R` | Package conditions and diagnostic extraction |
 
-`typesafer` requires R >= 4.1.0 and `httr2` >= 1.2.3. The transport uses a small
-retry loop to limit each attempt by the remaining total budget and to support
-TypeSafe retry headers. Runtime dependencies are declared in DESCRIPTION;
-`testthat` and `withr` are test dependencies.
+`typesafer` requires R >= 4.1.0, `httr2` >= 1.2.3 and `jsonlite` >= 1.8.0.
+JSON encoding is explicit so arrays, objects, nulls and numeric precision can
+be verified in the request body. The transport uses a small retry loop to limit
+each attempt by the remaining total budget and to support TypeSafe retry
+headers. Runtime dependencies are declared in DESCRIPTION; `testthat` and
+`withr` are test dependencies.
 
-The client will preserve server-provided values and unknown response fields.
-It will not recompute confidence, round scores, renumber rubric levels or
+The client preserves server-provided values and unknown response fields.
+It does not recompute confidence, round scores, renumber rubric levels or
 automatically convert responses into data frames.
 
 ## Model discovery
@@ -121,6 +123,62 @@ errors retain `status`, `server_message` and `validation` diagnostics; printed
 errors omit server content. Validation diagnostics exclude echoed inputs.
 Transport errors retain sanitised underlying error classes and messages in
 `causes`, without request objects.
+
+## Evaluation
+
+With the same configured client, mix question types in one request:
+
+```r
+questions <- list(
+    urgent = typesafer::create_noul_question("Does this message express urgency?"),
+    department = typesafer::create_choice_question(
+        criteria = list(billing = "Payments and invoices", technical = "Software issues"),
+        instructions = "Which department should handle this?"),
+    frustration = typesafer::create_score_question(
+        criteria = c("Calm", "Frustrated", "Angry"),
+        instructions = "How frustrated does the customer seem?"))
+
+result <- typesafer::evaluate_questions(
+    client,
+    state = list(message = "I was charged twice. Please fix this today."),
+    questions = questions)
+
+result$answers$department$choice
+result$answers$frustration$score
+result$model
+result$usage
+```
+
+The model and probabilities can vary. Noul returns a probability of yes/true.
+Choice returns the selected option and all option probabilities. Score returns
+a probability-weighted score over levels numbered from zero, so scores can be
+fractional. Choice and Score also include confidence.
+
+A request may override the client's model with `model = "versioned-model-id"`
+without changing the client or calling model discovery.
+
+## Input and JSON conventions
+
+Use plain named lists for JSON objects and unnamed lists for JSON arrays.
+Atomic vectors with multiple elements become arrays, with vector names ignored.
+Use `list("one")` for a singleton array; `"one"` is a scalar string. Score
+character criteria always become an array, even for one level.
+
+`list()` represents an empty array and
+`structure(list(), names = character())` represents an empty object. Named
+`NULL` list elements represent explicit JSON nulls. Constructors omit optional
+fields whose arguments are `NULL`; manually assembled questions can include
+explicit nulls. JSON objects require unique, non-empty, non-missing names.
+
+Convert data frames, factors, dates and matrices explicitly to supported plain
+values. Missing values (`NA`/`NaN`), infinite numbers and other unsupported R
+objects are rejected before sending a request.
+
+Choice requires 1–255 options and Score requires 1–10 levels (at least two
+recommended). Score descriptions cannot be null. Noul requires non-empty
+instructions or a non-null `true`/`false` criterion; an empty criterion
+description is accepted by the API. See the [API contract](docs/api-contract.md)
+for the verified boundary cases.
 
 ## Development plan
 
