@@ -45,8 +45,8 @@ validate_client <- function(client) {
     if (!inherits(client, "typesafe_client") || !is.list(client))
         abort_typesafer("`client` must be created by create_typesafe_client().",
                         "typesafer_input_error")
-    validate_client_settings(client$api_key, client$base_url, client$model,
-                             client$timeout, client$max_retries,
-                             client$retry_timeout)
+    validate_client_settings(client[["api_key"]], client[["base_url"]], client[["model"]],
+                             client[["timeout"]], client[["max_retries"]],
+                             client[["retry_timeout"]])
     return(invisible(NULL))
 }

@@ -23,12 +23,12 @@
 #' }
 list_models <- function(client) {
     result <- perform_typesafe_request(client, "GET", "v1/models")
-    valid <- is.list(result$models) && is.null(names(result$models))
+    valid <- is.list(result[["models"]]) && is.null(names(result[["models"]]))
     if (valid) {
-        for (model in result$models) {
-            if (!is.list(model) || !is_scalar_string(model$name) ||
-                    !is.character(model$description) || length(model$description) != 1L ||
-                    is.na(model$description) || !is_scalar_string(model$release_date)) {
+        for (model in result[["models"]]) {
+            if (!is.list(model) || !is_scalar_string(model[["name"]]) ||
+                    !is.character(model[["description"]]) || length(model[["description"]]) != 1L ||
+                    is.na(model[["description"]]) || !is_scalar_string(model[["release_date"]])) {
                 valid <- FALSE
                 break
             }

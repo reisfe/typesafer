@@ -8,8 +8,9 @@ functions and preserves its request and response structures.
 
 Both API endpoints and all three question constructors are implemented, along
 with client configuration and shared transport. Offline tests cover input
-validation, request serialization, response preservation and transport errors.
-CI is not configured yet; broader regression review remains for step 4.
+validation boundaries, JSON shapes and precision, response preservation,
+malformed responses, retry exhaustion and credential redaction. Regression
+review is complete; CI remains for step 5.
 
 The initial scope covers:
 
@@ -203,7 +204,8 @@ Follow [AGENTS.md](AGENTS.md) and the existing `.lintr` configuration. There is
 currently no CI configuration. Tests use `testthat` edition 3 and mocked
 responses, without Internet access or personal credentials. Future live tests
 will require both `RUN_NETWORK_TESTS=true` and an API key; ordinary
-test runs will skip them. Retry tests will mock delays and responses.
+test runs will skip them. Retry tests mock delays and responses, with fixed
+clocks for budget and HTTP-date checks.
 
 From a local checkout, install dependencies and the package with
 `devtools::install(dependencies = TRUE)`. For development, run from the repository

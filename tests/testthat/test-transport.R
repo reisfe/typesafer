@@ -52,10 +52,11 @@ testthat::test_that("unexpected programming errors are not converted to connecti
 
 testthat::test_that("only 429 and 529 retry and server delays are respected", {
     waits <- numeric()
-    testthat::local_mocked_bindings(wait_for_retry = function(seconds) {
-        waits <<- c(waits, seconds)
-        return(invisible(NULL))
-    })
+    testthat::local_mocked_bindings(get_elapsed_time = function() 0,
+                                    wait_for_retry = function(seconds) {
+                                        waits <<- c(waits, seconds)
+                                        return(invisible(NULL))
+                                    })
     calls <- 0L
     responses <- list(
                       create_test_response(429L, headers = list(`Retry-After` = "2")),
@@ -81,7 +82,8 @@ testthat::test_that("only 429 and 529 retry and server delays are respected", {
 })
 
 testthat::test_that("retry exhaustion and disabling retries preserve the last HTTP error", {
-    testthat::local_mocked_bindings(wait_for_retry = function(seconds) invisible(NULL))
+    testthat::local_mocked_bindings(get_elapsed_time = function() 0,
+                                    wait_for_retry = function(seconds) invisible(NULL))
     for (retries in c(0L, 2L)) {
         calls <- 0L
         httr2::with_mocked_responses(function(req) {
@@ -129,10 +131,6 @@ testthat::test_that("retry headers and jittered backoff handle boundary cases", 
     testthat::expect_equal(parse_retry_after("0"), 0)
     testthat::expect_true(is.na(parse_retry_after("invalid")))
     testthat::expect_true(is.na(parse_retry_after("-1")))
-    testthat::expect_equal(parse_retry_after("Wed, 21 Oct 2015 07:28:00 GMT"), 0)
-    future <- paste0("Wed, 21 Oct ", as.integer(format(Sys.Date(), "%Y")) + 10L,
-                     " 07:28:00 GMT")
-    testthat::expect_gt(parse_retry_after(future), 0)
     for (attempt in c(1L, 2L, 100L)) {
         response <- create_test_response(headers = list(`Retry-After` = "bad",
                                                         `retry-after-ms` = "-1"))

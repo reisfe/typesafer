@@ -154,7 +154,8 @@ testthat::test_that("malformed answer values and rubric maps raise response erro
 
 testthat::test_that("POST retries resend the same JSON and validation errors omit echoed inputs", {
     payloads <- character()
-    testthat::local_mocked_bindings(wait_for_retry = function(seconds) invisible(NULL))
+    testthat::local_mocked_bindings(get_elapsed_time = function() 0,
+                                    wait_for_retry = function(seconds) invisible(NULL))
     httr2::with_mocked_responses(function(req) {
         payloads <<- c(payloads, read_request_body(req))
         if (length(payloads) == 1L)

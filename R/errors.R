@@ -56,21 +56,21 @@ abort_http_error <- function(response, api_key) {
     server_message <- NULL
     validation <- list()
     if (is.list(body) && !is.null(names(body))) {
-        if (is.character(body$detail))
-            server_message <- redact_diagnostic(body$detail, api_key)
-        if (is.character(body$message))
-            server_message <- redact_diagnostic(body$message, api_key)
-        if (is.list(body$detail)) {
-            for (entry in body$detail) {
+        if (is.character(body[["detail"]]))
+            server_message <- redact_diagnostic(body[["detail"]], api_key)
+        if (is.character(body[["message"]]))
+            server_message <- redact_diagnostic(body[["message"]], api_key)
+        if (is.list(body[["detail"]])) {
+            for (entry in body[["detail"]]) {
                 if (!is.list(entry)) next
-                location <- entry$loc
+                location <- entry[["loc"]]
                 if (is.list(location)) location <- unlist(location, use.names = FALSE)
                 if (!is.character(location) && !is.numeric(location)) location <- NULL
                 diagnostic <- list(location = redact_diagnostic(as.character(location), api_key),
-                                   message = if (is.character(entry$msg))
-                                       redact_diagnostic(entry$msg, api_key) else NULL,
-                                   type = if (is.character(entry$type))
-                                       redact_diagnostic(entry$type, api_key) else NULL)
+                                   message = if (is.character(entry[["msg"]]))
+                                       redact_diagnostic(entry[["msg"]], api_key) else NULL,
+                                   type = if (is.character(entry[["type"]]))
+                                       redact_diagnostic(entry[["type"]], api_key) else NULL)
                 validation[[length(validation) + 1L]] <- diagnostic
             }
         }

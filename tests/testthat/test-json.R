@@ -30,3 +30,14 @@ testthat::test_that("array vectors are explicit and empty objects retain names",
     object <- structure(list(), names = character())
     testthat::expect_identical(normalize_json_value(object), object)
 })
+
+testthat::test_that("empty atomic vectors remain arrays and numeric magnitudes round trip", {
+    values <- c(.Machine$double.xmin, .Machine$double.xmax, 1e-100, -1e100,
+                .Machine$double.eps, 0, -0.125)
+    body <- list(numbers = values, logicals = logical(), integers = integer(), doubles = numeric())
+    decoded <- jsonlite::fromJSON(serialize_json_body(body), simplifyVector = FALSE)
+    testthat::expect_identical(unlist(decoded$numbers, use.names = FALSE), values)
+    testthat::expect_identical(decoded$logicals, list())
+    testthat::expect_identical(decoded$integers, list())
+    testthat::expect_identical(decoded$doubles, list())
+})

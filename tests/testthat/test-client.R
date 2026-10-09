@@ -19,9 +19,19 @@ testthat::test_that("client construction resolves configuration without network 
                                class = "typesafer_input_error")
     })
     withr::local_envvar(c(TYPESAFE_BASE_URL = NA, TYPESAFE_DEFAULT_MODEL = NA))
-    defaults <- create_test_client()
+    defaults <- create_typesafe_client(api_key = "test-key")
     testthat::expect_identical(defaults$base_url, "https://api.typesafe.ai")
     testthat::expect_identical(defaults$model, "jev-latest")
+})
+
+testthat::test_that("required client settings do not partially match other fields", {
+    for (field in c("api_key", "base_url", "model", "timeout", "max_retries", "retry_timeout")) {
+        client <- create_test_client()
+        names(client)[names(client) == field] <- paste0(field, "_backup")
+        httr2::with_mocked_responses(function(req) stop("Unexpected HTTP call"), {
+            testthat::expect_error(list_models(client), class = "typesafer_input_error")
+        })
+    }
 })
 
 testthat::test_that("missing and malformed configuration is rejected without exposing values", {
@@ -63,4 +73,22 @@ testthat::test_that("printing a client hides all configured values", {
     testthat::expect_false(any(grepl("private", output)))
     invisible_output <- capture.output(visibility <- withVisible(print(client)))
     testthat::expect_false(visibility$visible)
+})
+
+testthat::test_that("client calls preserve environment variables and session options", {
+    withr::local_envvar(c(TYPESAFE_API_KEY = "test-key", TYPESAFE_BASE_URL = NA,
+                          TYPESAFE_DEFAULT_MODEL = NA))
+    variables <- c("TYPESAFE_API_KEY", "TYPESAFE_BASE_URL", "TYPESAFE_DEFAULT_MODEL")
+    environment <- Sys.getenv(variables, unset = NA_character_)
+    client <- create_typesafe_client()
+    original <- client
+    settings <- options()
+    httr2::with_mocked_responses(list(create_test_response()), list_models(client))
+    testthat::expect_identical(options(), settings)
+    httr2::with_mocked_responses(list(create_test_response(401L)), {
+        testthat::expect_error(list_models(client), class = "typesafer_http_error")
+    })
+    testthat::expect_identical(options(), settings)
+    testthat::expect_identical(Sys.getenv(variables, unset = NA_character_), environment)
+    testthat::expect_identical(client, original)
 })

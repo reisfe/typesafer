@@ -21,6 +21,19 @@ testthat::test_that("model discovery sends the authenticated request and preserv
     testthat::expect_true(result$future$enabled)
 })
 
+testthat::test_that("required response fields must have their exact API names", {
+    bodies <- c(
+                '{"models_backup":[]}',
+                '{"models":[{"name_backup":"jev","description":"Model","release_date":"2026-09-15"}]}',
+                '{"models":[{"name":"jev","description_backup":"Model","release_date":"2026-09-15"}]}',
+                '{"models":[{"name":"jev","description":"Model","release_date_backup":"2026-09-15"}]}')
+    for (body in bodies) {
+        httr2::with_mocked_responses(list(create_test_response(body = body)), {
+            testthat::expect_error(list_models(create_test_client()), class = "typesafer_response_error")
+        })
+    }
+})
+
 testthat::test_that("empty model arrays are accepted and malformed structures are rejected", {
     empty <- httr2::with_mocked_responses(
                                           list(create_test_response(body = '{"models":[]}')),
