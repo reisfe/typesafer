@@ -43,6 +43,7 @@
 #' result$usage$input_tokens
 #' }
 evaluate_questions <- function(client, state, questions, model = client$model) {
+    # Validate arguments
     validate_client(client)
     if (missing(state) || missing(questions))
         abort_typesafer("Both `state` and `questions` are required.", "typesafer_input_error")
@@ -53,8 +54,12 @@ evaluate_questions <- function(client, state, questions, model = client$model) {
     if (!is_json_object(questions) || length(questions) == 0L)
         abort_typesafer("`questions` must be a non-empty named list.", "typesafer_input_error")
     questions <- lapply(questions, validate_question)
+
+    # Call TypeSafe API
     body <- list(state = state, model = model, questions = questions)
     result <- perform_typesafe_request(client, "POST", "v1/systemone", body)
+
+    # Validate and return response
     validate_evaluation_response(result, questions)
     return(result)
 }

@@ -1,13 +1,13 @@
 build_typesafe_request <- function(client, method, path, body = NULL) {
     validate_client(client)
-    request <- httr2::request(client$base_url)
-    request <- httr2::req_url_path_append(request, path)
-    request <- httr2::req_method(request, method)
-    request <- httr2::req_auth_bearer_token(request, client$api_key)
-    request <- httr2::req_headers(request, Accept = "application/json")
-    request <- httr2::req_user_agent(request, "typesafer R API client")
-    request <- httr2::req_options(request, followlocation = FALSE)
-    request <- httr2::req_error(request, is_error = function(response) FALSE)
+    request <- httr2::request(client$base_url) |>
+        httr2::req_url_path_append(path) |>
+        httr2::req_method(method) |>
+        httr2::req_auth_bearer_token(client$api_key) |>
+        httr2::req_headers(Accept = "application/json") |>
+        httr2::req_user_agent("typesafer R API client") |>
+        httr2::req_options(followlocation = FALSE) |>
+        httr2::req_error(is_error = function(response) FALSE)
     if (!is.null(body))
         request <- httr2::req_body_raw(request, serialize_json_body(body),
                                        type = "application/json")
