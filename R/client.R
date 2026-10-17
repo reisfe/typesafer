@@ -27,12 +27,16 @@ create_typesafe_client <- function(
     model = Sys.getenv("TYPESAFE_DEFAULT_MODEL", "jev-latest"),
     timeout = 10, max_retries = 2L, retry_timeout = 30)
 {
-    validate_client_settings(api_key, base_url, model, timeout,
-                             max_retries, retry_timeout)
-    client <- list(api_key = api_key, base_url = sub("/+$", "", base_url),
-                   model = model, timeout = timeout, max_retries = max_retries,
-                   retry_timeout = retry_timeout)
-    return(structure(client, class = "typesafe_client"))
+  validate_client_settings(api_key, base_url, model, timeout, max_retries,
+                           retry_timeout)
+  client <- list(api_key = api_key,
+                 base_url = sub("/+$", "", base_url),
+                 model = model,
+                 timeout = timeout,
+                 max_retries = max_retries,
+                 retry_timeout = retry_timeout) |>
+    structure(class = "typesafe_client")
+  return(client)
 }
 
 #' Print a TypeSafe client
@@ -43,6 +47,6 @@ create_typesafe_client <- function(
 #' @return The client, invisibly.
 #' @export
 print.typesafe_client <- function(x, ...) {
-    cat("<typesafe_client>\nConfiguration hidden; API key stored in memory.\n")
-    return(invisible(x))
+  cat("<typesafe_client>\nConfiguration hidden; API key stored in memory.\n")
+  return(invisible(x))
 }

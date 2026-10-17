@@ -43,78 +43,84 @@
 #' result$usage$input_tokens
 #' }
 evaluate_questions <- function(client, state, questions, model = client$model) {
-    # Validate arguments
-    validate_client(client)
-    if (missing(state) || missing(questions))
-        abort_typesafer("Both `state` and `questions` are required.", "typesafer_input_error")
-    validate_entry_value(state, "state", allow_null = FALSE)
-    if (!is_scalar_string(model))
-        abort_typesafer("`model` must be a non-empty string.", "typesafer_input_error")
-    validate_json_value(questions, "questions")
-    if (!is_json_object(questions) || length(questions) == 0L)
-        abort_typesafer("`questions` must be a non-empty named list.", "typesafer_input_error")
-    questions <- lapply(questions, validate_question)
+  # Validate arguments
+  validate_client(client)
+  if (missing(state) || missing(questions))
+    abort_typesafer("Both `state` and `questions` are required.",
+                    "typesafer_input_error")
+  validate_entry_value(state, "state", allow_null = FALSE)
+  validate_model_name(model)
+  validate_json_value(questions, "questions")
+  if (!is_json_object(questions) || length(questions) == 0L)
+    abort_typesafer("`questions` must be a non-empty named list.",
+                    "typesafer_input_error")
+  questions <- lapply(questions, validate_question)
 
-    # Call TypeSafe API
-    body <- list(state = state, model = model, questions = questions)
-    result <- perform_typesafe_request(client, "POST", "v1/systemone", body)
+  # Call TypeSafe API
+  body <- list(state = state, model = model, questions = questions)
+  result <- perform_typesafe_request(client, "POST", "v1/systemone", body)
 
-    # Validate and return response
-    validate_evaluation_response(result, questions)
-    return(result)
-}
-
-is_finite_scalar <- function(value, minimum = -Inf, maximum = Inf) {
-    return(is.numeric(value) && length(value) == 1L && !is.na(value) &&
-               is.finite(value) && value >= minimum && value <= maximum)
+  # Validate and return response
+  validate_evaluation_response(result, questions)
+  return(result)
 }
 
 is_token_count <- function(value) {
-    return(is_finite_scalar(value, minimum = 0) && value == floor(value))
+  return(is_finite_scalar(value, minimum = 0) && value == floor(value))
 }
 
 has_probability_map <- function(value, keys) {
-    if (!is_json_object(value) || !has_valid_names(value) || !setequal(names(value), keys))
-        return(FALSE)
-    return(all(vapply(value, is_finite_scalar, logical(1), minimum = 0, maximum = 1)))
+  if (!is_json_object(value)  ||
+      !has_valid_names(value) ||
+      !setequal(names(value), keys))
+    return(FALSE)
+  else
+    return(all(vapply(value, is_finite_scalar,
+                      logical(1), minimum = 0, maximum = 1)))
 }
 
 is_valid_answer <- function(answer, question) {
-    if (!is_json_object(answer) || !has_valid_names(answer) ||
-            !identical(answer[["type"]], question[["type"]])) return(FALSE)
-    type <- question[["type"]]
-    if (type == "noul") return(is_finite_scalar(answer[["noul"]], 0, 1))
-    if (!is_finite_scalar(answer[["confidence"]], 0, 1)) return(FALSE)
-    if (type == "choice") {
-        choice <- answer[["choice"]]
-        return(is.character(choice) && length(choice) == 1L && !is.na(choice) &&
-                   choice %in% names(question[["criteria"]]) &&
-                   has_probability_map(answer[["probabilities"]], names(question[["criteria"]])))
-    }
-    keys <- as.character(seq_along(question[["criteria"]]) - 1L)
-    legend <- answer[["legend"]]
-    return(is_finite_scalar(answer[["score"]], 0, length(keys) - 1L) &&
-               has_probability_map(answer[["probabilities"]], keys) &&
-               is_json_object(legend) && has_valid_names(legend) &&
-               setequal(names(legend), keys) &&
-               all(vapply(legend, is_entry_value, logical(1), allow_null = FALSE)))
+  if (!is_json_object(answer)  ||
+      !has_valid_names(answer) ||
+      !identical(answer[["type"]], question[["type"]]))
+    return(FALSE)
+  type <- question[["type"]]
+  if (type == "noul")
+    return(is_finite_scalar(answer[["noul"]], 0, 1))
+  if (!is_finite_scalar(answer[["confidence"]], 0, 1))
+    return(FALSE)
+  if (type == "choice") {
+    choice <- answer[["choice"]]
+    return(is.character(choice) &&
+             length(choice) == 1L &&
+             !is.na(choice) &&
+             choice %in% names(question[["criteria"]]) &&
+             has_probability_map(answer[["probabilities"]], names(question[["criteria"]])))
+  }
+  keys <- as.character(seq_along(question[["criteria"]]) - 1L)
+  legend <- answer[["legend"]]
+  return(is_finite_scalar(answer[["score"]], 0, length(keys) - 1L) &&
+           has_probability_map(answer[["probabilities"]], keys) &&
+           is_json_object(legend) && has_valid_names(legend) &&
+           setequal(names(legend), keys) &&
+           all(vapply(legend, is_entry_value, logical(1), allow_null = FALSE)))
 }
 
 validate_evaluation_response <- function(result, questions) {
-    answers <- result[["answers"]]
-    usage <- result[["usage"]]
-    if (!has_valid_names(result) || !is_scalar_string(result[["model"]]) ||
-            !is_json_object(answers) || !has_valid_names(answers) ||
-            !setequal(names(answers), names(questions)) || !is_json_object(usage) ||
-            !has_valid_names(usage) || !is_token_count(usage[["input_tokens"]]) ||
-            !is_token_count(usage[["output_tokens"]])) {
-        abort_typesafer("The TypeSafe API returned an invalid evaluation response.",
-                        "typesafer_response_error")
-    }
-    for (name in names(questions)) {
-        if (!is_valid_answer(answers[[name]], questions[[name]]))
-            abort_typesafer("The TypeSafe API returned an invalid or mismatched answer.",
-                            "typesafer_response_error")
-    }
-    return(invisible(NULL))
+  answers <- result[["answers"]]
+  usage <- result[["usage"]]
+  if (!has_valid_names(result) || !is_scalar_string(result[["model"]]) ||
+      !is_json_object(answers) || !has_valid_names(answers) ||
+      !setequal(names(answers), names(questions)) || !is_json_object(usage) ||
+      !has_valid_names(usage) || !is_token_count(usage[["input_tokens"]]) ||
+      !is_token_count(usage[["output_tokens"]])) {
+    abort_typesafer("The TypeSafe API returned an invalid evaluation response.",
+                    "typesafer_response_error")
+  }
+  for (name in names(questions)) {
+    if (!is_valid_answer(answers[[name]], questions[[name]]))
+      abort_typesafer("The TypeSafe API returned an invalid or mismatched answer.",
+                      "typesafer_response_error")
+  }
+  return(invisible(NULL))
 }

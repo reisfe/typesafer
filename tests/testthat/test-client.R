@@ -66,6 +66,23 @@ testthat::test_that("missing and malformed configuration is rejected without exp
                            class = "typesafer_input_error")
 })
 
+testthat::test_that("timeouts accept the 0.001 second minimum and reject values below it", {
+    client <- create_test_client(timeout = 0.001, retry_timeout = 0.001)
+    testthat::expect_identical(client$timeout, 0.001)
+    testthat::expect_identical(client$retry_timeout, 0.001)
+    testthat::expect_error(create_test_client(timeout = 0.0009999),
+                           class = "typesafer_input_error")
+    testthat::expect_error(create_test_client(retry_timeout = 0.0009999),
+                           class = "typesafer_input_error")
+})
+
+testthat::test_that("max_retries accepts the integer limit and rejects values above it", {
+    client <- create_test_client(max_retries = .Machine$integer.max)
+    testthat::expect_identical(client$max_retries, .Machine$integer.max)
+    testthat::expect_error(create_test_client(max_retries = .Machine$integer.max + 1),
+                           class = "typesafer_input_error")
+})
+
 testthat::test_that("printing a client hides all configured values", {
     client <- create_typesafe_client("private-key", "https://private.example", "private-model")
     output <- capture.output(testthat::expect_identical(print(client), client))

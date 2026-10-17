@@ -3,6 +3,11 @@ is_scalar_string <- function(value) {
                !is.na(value) && nzchar(trimws(value)))
 }
 
+is_finite_scalar <- function(value, minimum = -Inf, maximum = Inf) {
+    return(is.numeric(value) && length(value) == 1L && !is.na(value) &&
+               is.finite(value) && value >= minimum && value <= maximum)
+}
+
 validate_client_settings <- function(api_key, base_url, model, timeout,
                                      max_retries, retry_timeout) {
     if (!is_scalar_string(api_key) || grepl("[[:space:][:cntrl:]]", api_key))
@@ -19,23 +24,31 @@ validate_client_settings <- function(api_key, base_url, model, timeout,
                               "information, query parameters or a fragment."),
                         "typesafer_input_error")
     }
-    if (!is_scalar_string(model))
-        abort_typesafer("`model` must be a non-empty string.", "typesafer_input_error")
+    validate_model_name(model)
     validate_positive_number(timeout, "timeout")
     validate_positive_number(retry_timeout, "retry_timeout")
-    if (!is.numeric(max_retries) || length(max_retries) != 1L ||
-            is.na(max_retries) || !is.finite(max_retries) || max_retries < 0 ||
-            max_retries != floor(max_retries) || max_retries > .Machine$integer.max) {
-        abort_typesafer("`max_retries` must be a non-negative integer.",
+    validate_retry_count(max_retries)
+    return(invisible(NULL))
+}
+
+validate_model_name <- function(model) {
+    if (!is_scalar_string(model))
+        abort_typesafer("`model` must be a non-empty string.", "typesafer_input_error")
+    return(invisible(NULL))
+}
+
+validate_positive_number <- function(value, argument) {
+    if (!is_finite_scalar(value, minimum = 0.001)) {
+        abort_typesafer(paste0("`", argument, "` must be finite and at least 0.001 seconds."),
                         "typesafer_input_error")
     }
     return(invisible(NULL))
 }
 
-validate_positive_number <- function(value, argument) {
-    if (!is.numeric(value) || length(value) != 1L || is.na(value) ||
-            !is.finite(value) || value < 0.001) {
-        abort_typesafer(paste0("`", argument, "` must be finite and at least 0.001 seconds."),
+validate_retry_count <- function(max_retries) {
+    if (!is_finite_scalar(max_retries, minimum = 0, maximum = .Machine$integer.max) ||
+            max_retries != floor(max_retries)) {
+        abort_typesafer("`max_retries` must be a non-negative integer.",
                         "typesafer_input_error")
     }
     return(invisible(NULL))
