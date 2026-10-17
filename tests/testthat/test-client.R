@@ -83,11 +83,18 @@ testthat::test_that("max_retries accepts the integer limit and rejects values ab
                            class = "typesafer_input_error")
 })
 
-testthat::test_that("printing a client hides all configured values", {
-    client <- create_typesafe_client("private-key", "https://private.example", "private-model")
+testthat::test_that("printing a client shows retry settings but hides the key and URL", {
+    client <- create_typesafe_client("private-key", "https://private.example", "private-model",
+                                     timeout = 5, max_retries = 3L, retry_timeout = 12)
     output <- capture.output(testthat::expect_identical(print(client), client))
-    testthat::expect_match(paste(output, collapse = "\n"), "typesafe_client")
-    testthat::expect_false(any(grepl("private", output)))
+    text <- paste(output, collapse = "\n")
+    testthat::expect_match(text, "typesafe_client", fixed = TRUE)
+    testthat::expect_match(text, "Model: private-model", fixed = TRUE)
+    testthat::expect_match(text, "Timeout: 5 s", fixed = TRUE)
+    testthat::expect_match(text, "Max retries: 3", fixed = TRUE)
+    testthat::expect_match(text, "Retry timeout: 12 s", fixed = TRUE)
+    testthat::expect_no_match(text, "private-key", fixed = TRUE)
+    testthat::expect_no_match(text, "private.example", fixed = TRUE)
     invisible_output <- capture.output(visibility <- withVisible(print(client)))
     testthat::expect_false(visibility$visible)
 })

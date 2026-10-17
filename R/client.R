@@ -16,7 +16,7 @@
 #' @param retry_timeout Total time budget in seconds, at least 0.001, including all
 #'   attempts and retry delays. Each attempt is limited by the remaining budget.
 #' @return A `typesafe_client` S3 list containing resolved configuration. The
-#'   key is stored in memory; printing the client hides its configuration.
+#'   key is stored in memory; printing the client hides the key and base URL.
 #' @export
 #' @examples
 #' client <- create_typesafe_client(api_key = "example-key")
@@ -41,12 +41,17 @@ create_typesafe_client <- function(
 
 #' Print a TypeSafe client
 #'
-#' Prints a summary without showing the API key or other configuration values.
+#' Prints the model and retry settings without showing the API key or base URL.
 #' @param x A TypeSafe client.
 #' @param ... Unused arguments.
 #' @return The client, invisibly.
 #' @export
 print.typesafe_client <- function(x, ...) {
-  cat("<typesafe_client>\nConfiguration hidden; API key stored in memory.\n")
+  cat("<typesafe_client>\n")
+  cat("Model: ", x[["model"]], "\n", sep = "")
+  cat("Timeout: ", x[["timeout"]], " s\n", sep = "")
+  cat("Max retries: ", x[["max_retries"]], "\n", sep = "")
+  cat("Retry timeout: ", x[["retry_timeout"]], " s\n", sep = "")
+  cat("API key and base URL hidden.\n")
   return(invisible(x))
 }

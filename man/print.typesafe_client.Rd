@@ -15,5 +15,5 @@
 The client, invisibly.
 }
 \description{
-Prints a summary without showing the API key or other configuration values.
+Prints the model and retry settings without showing the API key or base URL.
 }

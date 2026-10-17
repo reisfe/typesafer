@@ -33,7 +33,7 @@ attempts and retry delays. Each attempt is limited by the remaining budget.}
 }
 \value{
 A \code{typesafe_client} S3 list containing resolved configuration. The
-key is stored in memory; printing the client hides its configuration.
+key is stored in memory; printing the client hides the key and base URL.
 }
 \description{
 Configuration is resolved from explicit arguments, then environment
