@@ -1,6 +1,6 @@
 # typesafer
 
-`typesafer` is an R package in development for accessing the TypeSafe AI API.
+`typesafer` is an unofficial R package in development for accessing the TypeSafe AI API.
 The package provides a thin, synchronous client that maps the HTTP API to R
 functions and preserves its request and response structures.
 
@@ -28,6 +28,18 @@ higher-level interface.
 
 See the [API contract](docs/api-contract.md) for input and output structures,
 JSON mappings and discrepancies verified against the live API.
+
+## Installation
+
+Install the development version from GitHub:
+
+```r
+install.packages("remotes") # If not already installed
+remotes::install_github("reisfe/typesafer")
+```
+
+R >= 4.1.0 is required. Installing from GitHub requires Internet access;
+using the API also requires a TypeSafe API key.
 
 ## R interface
 
