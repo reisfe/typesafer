@@ -7,3 +7,4 @@
 ^\.posit/assistant$
 ^\.github$
 ^LICENSE\.md$
+^SECURITY\.md$
