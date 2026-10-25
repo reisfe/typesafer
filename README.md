@@ -259,4 +259,4 @@ Keep changes focused and preserve existing work.
 - [Swagger API reference](https://api.typesafe.ai/docs)
 - [OpenAPI schema](https://api.typesafe.ai/openapi.json)
 
-Licensed under GPL-3, as declared in [DESCRIPTION](DESCRIPTION).
+Licensed under [GNU GPL v3](LICENSE.md), as declared in [DESCRIPTION](DESCRIPTION).

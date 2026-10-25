@@ -5,3 +5,4 @@
 ^docs$
 ^\.codex$
 ^\.posit/assistant$
+^LICENSE\.md$
