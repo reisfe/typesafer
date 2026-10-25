@@ -5,4 +5,5 @@
 ^docs$
 ^\.codex$
 ^\.posit/assistant$
+^\.github$
 ^LICENSE\.md$

@@ -10,7 +10,8 @@ Both API endpoints and all three question constructors are implemented, along
 with client configuration and shared transport. Offline tests cover input
 validation boundaries, JSON shapes and precision, response preservation,
 malformed responses, retry exhaustion and credential redaction. Regression
-review is complete; CI remains for step 5.
+review is complete. A GitHub Actions workflow is configured to run offline
+package checks on Linux, Windows and macOS.
 
 The initial scope covers:
 
@@ -200,10 +201,17 @@ Authenticated integration results will be reported separately.
 
 ## Testing and contributing
 
-Follow [AGENTS.md](AGENTS.md) and the existing `.lintr` configuration. There is
-currently no CI configuration. Unit tests use `testthat` edition 3 and mocked
+Follow [AGENTS.md](AGENTS.md) and the existing `.lintr` configuration.
+Unit tests use `testthat` edition 3 and mocked
 responses, without Internet access or personal credentials. Retry tests mock
 delays and responses, with fixed clocks for budget and HTTP-date checks.
+
+The [GitHub Actions workflow](.github/workflows/R-CMD-check.yaml) runs
+`R CMD check` with the current R release on Linux, Windows and macOS for pushes,
+pull requests and manual runs. Check errors or warnings fail the job; PDF manual
+generation is disabled. It sets `RUN_NETWORK_TESTS=false` for all jobs and does
+not use TypeSafe API credentials. Dependency installation requires Internet
+access, while package tests use offline mocks.
 
 Live integration tests are in `tests/testthat/test-live-api.R` and run through
 the same test framework. By default, they skip with an informative message.
