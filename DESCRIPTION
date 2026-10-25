@@ -2,6 +2,7 @@ Package: typesafer
 Type: Package
 Title: R Client for the TypeSafe AI API
 Version: 0.0.0.9000
+Date: 2026-10-25
 Authors@R: 
     person(given = "Fernando",
            family = "Reis",
