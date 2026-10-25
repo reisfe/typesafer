@@ -1,6 +1,6 @@
 #' Evaluate named questions against a state
 #'
-#' Calls `POST /v1/systemone` with one state and one or more independent typed
+#' Queries a TypeSafe API client with one state and one or more independent typed
 #' questions. Noul, Choice and Score can be mixed in one request.
 #'
 #' @param client A client created by [create_typesafe_client()].
@@ -36,9 +36,9 @@
 #' \dontrun{
 #' client <- create_typesafe_client()
 #' result <- evaluate_questions(client, "Please fix my payment today.", list(
-#'     urgent = create_noul_question("Is this urgent?"),
-#'     department = create_choice_question(list(billing = "Payments", technical = "Bugs")),
-#'     frustration = create_score_question(c("Calm", "Frustrated", "Angry"))))
+#'   urgent = create_noul_question("Is this urgent?"),
+#'   department = create_choice_question(list(billing = "Payments", technical = "Bugs")),
+#'   frustration = create_score_question(c("Calm", "Frustrated", "Angry"))))
 #' result$answers$department$choice
 #' result$usage$input_tokens
 #' }
@@ -95,7 +95,8 @@ is_valid_answer <- function(answer, question) {
              length(choice) == 1L &&
              !is.na(choice) &&
              choice %in% names(question[["criteria"]]) &&
-             has_probability_map(answer[["probabilities"]], names(question[["criteria"]])))
+             has_probability_map(answer[["probabilities"]],
+                                 names(question[["criteria"]])))
   }
   keys <- as.character(seq_along(question[["criteria"]]) - 1L)
   legend <- answer[["legend"]]

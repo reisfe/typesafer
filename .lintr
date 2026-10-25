@@ -16,9 +16,8 @@ linters: local({
     return(list(
         object_name_linter = lintr::object_name_linter(styles = "snake_case"),
         assignment_linter = lintr::assignment_linter(operator = "<-"),
-        # Four-space block indents; align continuation arguments when the
-        # first argument shares the call's opening line.
-        indentation_linter = lintr::indentation_linter(indent = 2L),
+        line_length_linter = lintr::line_length_linter(length = 90L),
+        # Leave indentation to RStudio rather than enforcing a competing style.
         whitespace_linter = lintr::whitespace_linter(),
         trailing_whitespace_linter = lintr::trailing_whitespace_linter(),
         # Requires a terminal newline and rejects extra trailing blank lines.

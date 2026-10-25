@@ -14,13 +14,13 @@ create_typesafe_client(
 )
 }
 \arguments{
-\item{api_key}{API key. Defaults to \code{TYPESAFE_API_KEY}; required.}
+\item{api_key}{API key. Defaults to environment variable \code{TYPESAFE_API_KEY}; required.}
 
 \item{base_url}{HTTPS API base URL, optionally including a path prefix.
-Defaults to \code{TYPESAFE_BASE_URL}, or \verb{https://api.typesafe.ai} when unset.
-User information, query parameters and fragments are not accepted.}
+Defaults to environment variable \code{TYPESAFE_BASE_URL}, or \verb{https://api.typesafe.ai}
+when unset. User information, query parameters and fragments are not accepted.}
 
-\item{model}{Default model name. Defaults to \code{TYPESAFE_DEFAULT_MODEL}, or
+\item{model}{Model name. Defaults to environment variable \code{TYPESAFE_DEFAULT_MODEL}, or
 \code{jev-latest} when unset. No discovery request is required to validate it.}
 
 \item{timeout}{Timeout in seconds for each HTTP attempt, at least 0.001.}

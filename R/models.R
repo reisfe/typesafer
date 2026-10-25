@@ -1,7 +1,8 @@
 #' List available TypeSafe models
 #'
-#' Calls `GET /v1/models`. The list may contain aliases and need not include
-#' every accepted versioned model ID. Unknown response fields are preserved.
+#' Queries a TypeSafe API client for the list of available models. The list may contain
+#' aliases and need not include every accepted versioned model ID. Unknown response fields
+#' are preserved.
 #'
 #' @param client A client created by [create_typesafe_client()].
 #' @return A nested list with a `models` array of lists containing `name`,
@@ -22,20 +23,20 @@
 #' models$models
 #' }
 list_models <- function(client) {
-    result <- perform_typesafe_request(client, "GET", "v1/models")
-    valid <- is.list(result[["models"]]) && is.null(names(result[["models"]]))
-    if (valid) {
-        for (model in result[["models"]]) {
-            if (!is.list(model) || !is_scalar_string(model[["name"]]) ||
-                    !is.character(model[["description"]]) || length(model[["description"]]) != 1L ||
-                    is.na(model[["description"]]) || !is_scalar_string(model[["release_date"]])) {
-                valid <- FALSE
-                break
-            }
-        }
+  result <- perform_typesafe_request(client, "GET", "v1/models")
+  valid <- is.list(result[["models"]]) && is.null(names(result[["models"]]))
+  if (valid) {
+    for (model in result[["models"]]) {
+      if (!is.list(model) || !is_scalar_string(model[["name"]]) ||
+          !is.character(model[["description"]]) || length(model[["description"]]) != 1L ||
+          is.na(model[["description"]]) || !is_scalar_string(model[["release_date"]])) {
+        valid <- FALSE
+        break
+      }
     }
-    if (!valid)
-        abort_typesafer("The TypeSafe API returned an invalid model list.",
-                        "typesafer_response_error")
-    return(result)
+  }
+  if (!valid)
+    abort_typesafer("The TypeSafe API returned an invalid model list.",
+                    "typesafer_response_error")
+  return(result)
 }

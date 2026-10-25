@@ -27,7 +27,7 @@ and types match the questions. Noul contains \code{noul}; Choice contains
 at \code{"0"}. Server order, values, nulls and unknown fields are preserved.
 }
 \description{
-Calls \code{POST /v1/systemone} with one state and one or more independent typed
+Queries a TypeSafe API client with one state and one or more independent typed
 questions. Noul, Choice and Score can be mixed in one request.
 }
 \section{JSON mappings}{
@@ -55,9 +55,9 @@ confidence or scores locally.
 \dontrun{
 client <- create_typesafe_client()
 result <- evaluate_questions(client, "Please fix my payment today.", list(
-    urgent = create_noul_question("Is this urgent?"),
-    department = create_choice_question(list(billing = "Payments", technical = "Bugs")),
-    frustration = create_score_question(c("Calm", "Frustrated", "Angry"))))
+  urgent = create_noul_question("Is this urgent?"),
+  department = create_choice_question(list(billing = "Payments", technical = "Bugs")),
+  frustration = create_score_question(c("Calm", "Frustrated", "Angry"))))
 result$answers$department$choice
 result$usage$input_tokens
 }

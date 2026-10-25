@@ -14,8 +14,9 @@ A nested list with a \code{models} array of lists containing \code{name},
 \code{description} and \code{release_date} strings. Dates are not converted.
 }
 \description{
-Calls \code{GET /v1/models}. The list may contain aliases and need not include
-every accepted versioned model ID. Unknown response fields are preserved.
+Queries a TypeSafe API client for the list of available models. The list may contain
+aliases and need not include every accepted versioned model ID. Unknown response fields
+are preserved.
 }
 \section{Errors}{
 

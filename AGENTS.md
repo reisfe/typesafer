@@ -79,7 +79,7 @@ Use:
 - `<-` for assignment;
 - descriptive function and argument names;
 - function names that start with a descriptive verb;
-- four spaces for indentation;
+- two spaces for indentation;
 - UTF-8 encoding;
 - trailing newlines;
 - no trailing whitespace;

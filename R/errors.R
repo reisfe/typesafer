@@ -6,8 +6,9 @@ abort_typesafer <- function(message, subclass, ...) {
 
 redact_diagnostic <- function(message, api_key) {
   message <- gsub(api_key, "[REDACTED]", message, fixed = TRUE)
-  return(gsub("(?i)Bearer[[:space:]]+[^[:space:]\"']+",
-              "Bearer [REDACTED]", message, perl = TRUE))
+  message <- gsub("(?i)Bearer[[:space:]]+[^[:space:]\"']+",
+                  "Bearer [REDACTED]", message, perl = TRUE)
+  return(message)
 }
 
 collect_error_causes <- function(error, api_key) {
