@@ -62,7 +62,8 @@ testthat::test_that("missing and malformed config is rejected without exposing v
                          class = "typesafer_input_error")
   testthat::expect_error(create_test_client(model = ""),
                          class = "typesafer_input_error")
-  withr::local_envvar(c(TYPESAFE_BASE_URL = "", TYPESAFE_DEFAULT_MODEL = ""))
+  # Windows unsets environment variables assigned an empty string.
+  withr::local_envvar(c(TYPESAFE_BASE_URL = " ", TYPESAFE_DEFAULT_MODEL = " "))
   testthat::expect_error(create_typesafe_client(api_key = "test-key"),
                          class = "typesafer_input_error")
 })
