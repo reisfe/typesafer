@@ -201,11 +201,22 @@ Authenticated integration results will be reported separately.
 ## Testing and contributing
 
 Follow [AGENTS.md](AGENTS.md) and the existing `.lintr` configuration. There is
-currently no CI configuration. Tests use `testthat` edition 3 and mocked
-responses, without Internet access or personal credentials. Future live tests
-will require both `RUN_NETWORK_TESTS=true` and an API key; ordinary
-test runs will skip them. Retry tests mock delays and responses, with fixed
-clocks for budget and HTTP-date checks.
+currently no CI configuration. Unit tests use `testthat` edition 3 and mocked
+responses, without Internet access or personal credentials. Retry tests mock
+delays and responses, with fixed clocks for budget and HTTP-date checks.
+
+Live integration tests are in `tests/testthat/test-live-api.R` and run through
+the same test framework. By default, they skip with an informative message.
+They run only when `RUN_NETWORK_TESTS` is exactly `"true"`; an enabled run fails
+if `TYPESAFE_API_KEY` is missing or blank. They use the normal client settings,
+including `TYPESAFE_BASE_URL` and `TYPESAFE_DEFAULT_MODEL` when configured.
+
+The live tests make five requests before any retries: model discovery, one
+evaluation per question type, and a mixed evaluation with structured state.
+They send only synthetic content and check response contracts and valid ranges,
+without asserting exact predictions, probabilities or model versions. They
+require Internet access and may incur API charges. API errors, timeouts and
+incompatible responses fail the tests rather than being skipped.
 
 From a local checkout, install dependencies and the package with
 `devtools::install(dependencies = TRUE)`. For development, run from the repository
@@ -216,6 +227,27 @@ devtools::document()
 devtools::test()
 devtools::check()
 ```
+
+To run live tests, configure `TYPESAFE_API_KEY` in your `.Renviron`, restart R,
+and run the following from the repository root. To include live tests alongside
+the offline suite:
+
+```r
+withr::with_envvar(
+  c(RUN_NETWORK_TESTS = "true"),
+  devtools::test())
+```
+
+To run only the live tests:
+
+```r
+withr::with_envvar(
+  c(RUN_NETWORK_TESTS = "true"),
+  devtools::test(filter = "^live-api$"))
+```
+
+The temporary setting is restored after the run. Leave the flag unset for
+ordinary offline tests and package checks.
 
 Edit roxygen comments in source files and regenerate documentation and exports.
 Keep changes focused and preserve existing work.
