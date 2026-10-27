@@ -1,6 +1,4 @@
-# typesafer (development version)
-
-# typesafer 0.0.0.9000
+# typesafer 0.1.0
 
 Initial development of an unofficial R client for the TypeSafe AI API.
 

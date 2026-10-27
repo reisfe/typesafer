@@ -26,7 +26,7 @@ Data-frame workflows, vectorised evaluation, asynchronous execution, caching,
 classification helpers and statistical summaries are deferred to a later
 higher-level interface.
 
-See the [API contract](docs/api-contract.md) for input and output structures,
+See the [API contract](https://github.com/reisfe/typesafer/blob/main/docs/api-contract.md) for input and output structures,
 JSON mappings and discrepancies verified against the live API.
 
 ## Installation
@@ -191,7 +191,7 @@ objects are rejected before sending a request.
 Choice requires 1–255 options and Score requires 1–10 levels (at least two
 recommended). Score descriptions cannot be null. Noul requires non-empty
 instructions or a non-null `true`/`false` criterion; an empty criterion
-description is accepted by the API. See the [API contract](docs/api-contract.md)
+description is accepted by the API. See the [API contract](https://github.com/reisfe/typesafer/blob/main/docs/api-contract.md)
 for the verified boundary cases.
 
 ## Development plan
@@ -213,12 +213,12 @@ Authenticated integration results will be reported separately.
 
 ## Testing and contributing
 
-Follow [AGENTS.md](AGENTS.md) and the existing `.lintr` configuration.
+Follow [AGENTS.md](https://github.com/reisfe/typesafer/blob/main/AGENTS.md) and the existing `.lintr` configuration.
 Unit tests use `testthat` edition 3 and mocked
 responses, without Internet access or personal credentials. Retry tests mock
 delays and responses, with fixed clocks for budget and HTTP-date checks.
 
-The [GitHub Actions workflow](.github/workflows/R-CMD-check.yaml) runs
+The [GitHub Actions workflow](https://github.com/reisfe/typesafer/blob/main/.github/workflows/R-CMD-check.yaml) runs
 `R CMD check` with the current R release on Linux, Windows and macOS for pushes,
 pull requests and manual runs. Check errors or warnings fail the job; PDF manual
 generation is disabled. It sets `RUN_NETWORK_TESTS=false` for all jobs and does
@@ -279,4 +279,4 @@ Keep changes focused and preserve existing work.
 - [Swagger API reference](https://api.typesafe.ai/docs)
 - [OpenAPI schema](https://api.typesafe.ai/openapi.json)
 
-Licensed under [GNU GPL v3](LICENSE.md), as declared in [DESCRIPTION](DESCRIPTION).
+Licensed under [GNU GPL v3](https://github.com/reisfe/typesafer/blob/main/LICENSE.md), as declared in [DESCRIPTION](https://github.com/reisfe/typesafer/blob/main/DESCRIPTION).
