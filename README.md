@@ -219,8 +219,9 @@ responses, without Internet access or personal credentials. Retry tests mock
 delays and responses, with fixed clocks for budget and HTTP-date checks.
 
 The [GitHub Actions workflow](https://github.com/reisfe/typesafer/blob/main/.github/workflows/R-CMD-check.yaml) runs
-`R CMD check` with the current R release on Linux, Windows and macOS for pushes,
-pull requests and manual runs. Check errors or warnings fail the job; PDF manual
+`R CMD check` with the current R release on Linux, Windows and macOS, and with
+R-devel on Linux and Windows, for pushes, pull requests and manual runs.
+Check errors or warnings fail the job; PDF manual
 generation is disabled. It sets `RUN_NETWORK_TESTS=false` for all jobs and does
 not use TypeSafe API credentials. Dependency installation requires Internet
 access, while package tests use offline mocks.
