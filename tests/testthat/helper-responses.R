@@ -1,7 +1,7 @@
 create_test_response <- function(status = 200L, body = NULL, headers = list()) {
   if (is.null(body))
-    body <- paste0('{"models":[{"name":"jev-latest",',
-                   '"description":"A model",',
+    body <- paste0('{"models":[{"name":"jev-latest", ',
+                   '"description":"A model", ',
                    '"release_date":"2026-09-15"}]}')
   headers <- c(list(`content-type` = "application/json"), headers)
 

@@ -194,7 +194,7 @@ testthat::test_that("POST retries resend same JSON and validation errors omit in
     evaluate_questions(create_test_client(), "private content", create_test_questions()))
   testthat::expect_length(payloads, 2L)
   testthat::expect_identical(payloads[[1L]], payloads[[2L]])
-  body <- paste0('{"detail":[{"loc":["body","state"],"msg":"Invalid","type":"invalid",',
+  body <- paste0('{"detail":[{"loc":["body", "state"], "msg":"Invalid", "type":"invalid", ',
                  '"input":"private content"}]}')
   error <- httr2::with_mocked_responses(
     list(create_test_response(422L, body)),

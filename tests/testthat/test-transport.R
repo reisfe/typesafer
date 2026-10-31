@@ -1,6 +1,6 @@
 testthat::test_that("HTTP errors preserve diagnostics without printing server content", {
-  body <- paste0('{"detail":[{"loc":["body","model"],"msg":"Invalid test-key",',
-                 '"type":"invalid","input":"private content","ctx":{"key":"test-key"}}]}')
+  body <- paste0('{"detail":[{"loc":["body", "model"], "msg":"Invalid test-key", ',
+                 '"type":"invalid", "input":"private content", "ctx":{"key":"test-key"}}]}')
   for (status in c(400L, 401L, 403L, 422L, 429L, 500L, 529L, 302L)) {
     error <- httr2::with_mocked_responses(
       list(create_test_response(status, body)),

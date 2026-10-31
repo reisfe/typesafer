@@ -1,7 +1,7 @@
 testthat::test_that("model discovery sends authenticated request and preserves fields", {
   client <- create_test_client(base_url = "https://example.org/prefix/")
-  body <- paste0('{"models":[{"name":"jev-custom","description":"",',
-                 '"release_date":"2026-09-15","extra":null}],"future":{"enabled":true}}')
+  body <- paste0('{"models":[{"name":"jev-custom", "description":"", ',
+                 '"release_date":"2026-09-15", "extra":null}], "future":{"enabled":true}}')
   result <- httr2::with_mocked_responses(function(req) {
     testthat::expect_identical(req$url, "https://example.org/prefix/v1/models")
     testthat::expect_identical(req$method, "GET")
@@ -25,9 +25,9 @@ testthat::test_that("model discovery sends authenticated request and preserves f
 testthat::test_that("required response fields must have their exact API names", {
   bodies <- c(
     '{"models_backup":[]}',
-    '{"models":[{"name_backup":"jev","description":"Model","release_date":"2026-9-15"}]}',
-    '{"models":[{"name":"jev","description_backup":"Model","release_date":"2026-9-15"}]}',
-    '{"models":[{"name":"jev","description":"Model","release_date_backup":"2026-9-15"}]}')
+    '{"models":[{"name_backup":"jev", "description":"Model", "release_date":"2026-9-15"}]}',
+    '{"models":[{"name":"jev", "description_backup":"Model", "release_date":"2026-9-15"}]}',
+    '{"models":[{"name":"jev", "description":"Model", "release_date_backup":"2026-9-15"}]}')
 
   for (body in bodies) {
     httr2::with_mocked_responses(list(
@@ -48,7 +48,7 @@ testthat::test_that("empty model arrays are accepted and malformed structures re
 
   for (body in c('{}', '[]', 'null', '"text"', '{"models":null}',
                  '{"models":[{}]}', '{"models":[1]}',
-                 '{"models":[{"name":1,"description":"x","release_date":"x"}]}',
+                 '{"models":[{"name":1, "description":"x", "release_date":"x"}]}',
                  '{"models":{"name":"jev"}}', '<html>Bad gateway</html>')) {
     httr2::with_mocked_responses(list(create_test_response(body = body)), {
       testthat::expect_error(list_models(create_test_client()),

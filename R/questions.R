@@ -52,9 +52,12 @@ create_question <- function(type, instructions, criteria) {
 }
 
 has_question_content <- function(value) {
-  if (is.null(value) || length(value) == 0L) return(FALSE)
-  if (is.character(value) && length(value) == 1L) return(nzchar(value))
-  return(TRUE)
+  if (is.null(value) || length(value) == 0L)
+    return(FALSE)
+  else if (is.character(value) && length(value) == 1L)
+    return(nzchar(value))
+  else
+    return(TRUE)
 }
 
 validate_question <- function(question) {

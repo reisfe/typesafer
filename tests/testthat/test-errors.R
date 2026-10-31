@@ -1,7 +1,7 @@
 testthat::test_that("only exact diagnostic field names are extracted", {
-  body <- paste0('{"message_backup":"Unexpected",',
-                 '"detail":[{"loc_backup":["body","state"],',
-                 '"msg_backup":"Unexpected","type_backup":"unexpected"}]}')
+  body <- paste0('{"message_backup":"Unexpected", ',
+                 '"detail":[{"loc_backup":["body", "state"], ',
+                 '"msg_backup":"Unexpected", "type_backup":"unexpected"}]}')
   error <- httr2::with_mocked_responses(
     list(create_test_response(422L, body)),
     tryCatch(list_models(create_test_client()), typesafer_error = identity))
@@ -39,8 +39,8 @@ testthat::test_that("retained HTTP diagnostic fields redact keys and bearer toke
 
 testthat::test_that("malformed server diagnostics still produce concise HTTP errors", {
   bodies <- c("not JSON", "null", "[]", '"private content"',
-              '{"detail":[null,3,"private content"]}',
-              '{"message":3,"detail":[{"loc":true,"msg":false,"type":3}]}')
+              '{"detail":[null, 3, "private content"]}',
+              '{"message":3, "detail":[{"loc":true, "msg":false, "type":3}]}')
   for (body in bodies) {
     error <- httr2::with_mocked_responses(
       list(create_test_response(400L, body)),
