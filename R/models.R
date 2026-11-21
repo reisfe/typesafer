@@ -17,10 +17,13 @@
 #' underlying error classes and messages, without request objects.
 #' @export
 #' @examples
-#' \dontrun{
-#' client <- create_typesafe_client()
-#' models <- list_models(client)
-#' models$models
+#' \donttest{
+#' # Requires an Internet connection and a valid TypeSafe API key.
+#' if (interactive() && nzchar(trimws(Sys.getenv("TYPESAFE_API_KEY")))) {
+#'   client <- create_typesafe_client()
+#'   models <- list_models(client)
+#'   models$models
+#' }
 #' }
 list_models <- function(client) {
   result <- perform_typesafe_request(client, "GET", "v1/models")

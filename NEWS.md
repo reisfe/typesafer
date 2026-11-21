@@ -1,3 +1,8 @@
+# typesafer 0.1.1
+
+- Simplify the package title and description in response to CRAN review.
+- Update the live API examples to use `\donttest{}` and check for an API key.
+
 # typesafer 0.1.0
 
 Initial development of an unofficial R client for the TypeSafe AI API.

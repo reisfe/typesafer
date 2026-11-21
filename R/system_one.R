@@ -33,14 +33,18 @@
 #' confidence or scores locally.
 #' @export
 #' @examples
-#' \dontrun{
-#' client <- create_typesafe_client()
-#' result <- evaluate_questions(client, "Please fix my payment today.", list(
+#' questions <- list(
 #'   urgent = create_noul_question("Is this urgent?"),
 #'   department = create_choice_question(list(billing = "Payments", technical = "Bugs")),
-#'   frustration = create_score_question(c("Calm", "Frustrated", "Angry"))))
-#' result$answers$department$choice
-#' result$usage$input_tokens
+#'   frustration = create_score_question(c("Calm", "Frustrated", "Angry")))
+#' \donttest{
+#' # Requires an Internet connection and a valid TypeSafe API key.
+#' if (interactive() && nzchar(trimws(Sys.getenv("TYPESAFE_API_KEY")))) {
+#'   client <- create_typesafe_client()
+#'   result <- evaluate_questions(client, "Please fix my payment today.", questions)
+#'   result$answers$department$choice
+#'   result$usage$input_tokens
+#' }
 #' }
 evaluate_questions <- function(client, state, questions, model = client$model) {
   # Validate arguments

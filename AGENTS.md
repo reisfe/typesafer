@@ -208,6 +208,17 @@ Update the README and other affected documentation where appropriate.
 
 
 
+## Preparing a CRAN submission
+
+- Start DESCRIPTION titles and descriptions with what the package does.
+  Omit redundant openings such as "R Client" and "An R interface".
+- Leave examples that run in under five seconds unwrapped when they need
+  no external resources. Use `\donttest{}` for longer or live examples and
+  guard external calls so automated checks can run without credentials or
+  network access. Reserve `\dontrun{}` for examples users genuinely cannot
+  execute. See the [CRAN Cookbook](https://contributor.r-project.org/cran-cookbook/general_issues.html#structuring-of-examples).
+
+
 ## Building and testing
 
 Run commands from the repository root.

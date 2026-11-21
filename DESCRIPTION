@@ -1,17 +1,17 @@
 Package: typesafer
 Type: Package
-Title: R Client for the 'TypeSafe' AI API
-Version: 0.1.0
-Date: 2026-10-25
+Title: Client for the 'TypeSafe' AI API
+Version: 0.1.1
+Date: 2026-11-21
 Authors@R: 
     person(given = "Fernando",
            family = "Reis",
            role = c("aut", "cre"),
            email = "fernando@lopesreis.eu",
            comment = c(ORCID = "0009-0001-8479-4412"))
-Description: An R interface to the 'TypeSafe' AI API <https://docs.typesafe.ai/>
-    for model discovery and evaluation of named Noul, Choice and Score questions
-    against supplied content. The client is designed to preserve the API request and response
+Description: Provides model discovery and evaluation of named Noul, Choice and
+    Score questions against supplied content using the 'TypeSafe' AI API
+    <https://docs.typesafe.ai/>. The client preserves API request and response
     structures, including probabilities, confidence values and token usage.
 License: GPL-3
 URL: https://github.com/reisfe/typesafer, https://docs.typesafe.ai/
